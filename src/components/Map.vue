@@ -29,7 +29,7 @@ export default {
       route: {},
       settings: mapSettings,
       mkadPolygonCoords: polygonCoords,
-      locationCoords: [],
+      locationCoords: [55.755814, 37.617635],
     };
   },
   methods: {
@@ -37,6 +37,11 @@ export default {
       this.myMap = map;
       this.mkadPolygon = new this.ymapsRef.Polygon(this.mkadPolygonCoords);
       this.myMap.geoObjects.add(this.mkadPolygon);
+      this.location = new this.ymapsRef.Placemark(this.locationCoords);
+      this.normalVec = new this.ymapsRef.Polyline([
+        this.mkadPolygon.geometry.getClosest(this.locationCoords).position,
+        this.locationCoords,
+      ]);
     },
     getDist(event) {
       this.locationCoords = event.get("coords");
@@ -51,8 +56,8 @@ export default {
           .remove(this.route);
       }
 
-      this.location = new this.ymapsRef.Placemark(this.locationCoords);
-      this.normalVec = new this.ymapsRef.Polyline([
+      this.location.geometry.setCoordinates(this.locationCoords);
+      this.normalVec.geometry.setCoordinates([
         this.closestPoit.position,
         this.locationCoords,
       ]);
@@ -73,8 +78,12 @@ export default {
             .add(this.route);
           this.myMap.balloon.open(this.locationCoords, {
             contentBody: `<h1>Расстояние до МКАД </h1>
-                          <p>по прямой: ${(this.closestPoit.distance / 1000).toFixed(2)} км</p>
-                          <p>на автомобиле: ${(this.route.getLength() / 1000).toFixed(2)} км</p>`,
+                          <p>по прямой: ${(
+                            this.closestPoit.distance / 1000
+                          ).toFixed(2)} км</p>
+                          <p>на автомобиле: ${(
+                            this.route.getLength() / 1000
+                          ).toFixed(2)} км</p>`,
           });
         });
     },
